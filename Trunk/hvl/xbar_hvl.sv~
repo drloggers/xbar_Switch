@@ -1,0 +1,144 @@
+// This is HVL for Booth's Multiplier verification environment that runs on the Workstation
+
+import xtlm_pkg::*; // For trans-language TLM channels.
+import xbar_pkg::*;
+
+parameter debug=1;
+
+typedef struct packed{
+  packet header;
+  packet payload;} full_packet;
+  
+  
+  
+	class scoreboard;
+	  
+
+		xtlm_fifo #(bit[(packet_width*ports*2)-1:0]) monitorChannel;
+		function new ();
+		begin
+			monitorChannel = new ("top.output_pipe");
+		 end
+		endfunction
+
+		task run();
+		  full_packet [ports-1:0]rxpacket;
+		  full_packet expected_result[ports*slots-1:0];
+		  int count=0;
+			while (1)
+			begin
+				
+				monitorChannel.get(rxpacket);
+				fork
+				foreach(rxpacket[i])
+				$display("\nHVL: LOC %d Received Header=%p    Payload=%p",i,rxpacket[i].header,rxpacket[i].payload.payload);
+				join_none//if(count==31) begin
+				//Call two_xbar_model here 
+				//count=0;
+				//Display
+				//
+				//begin		  
+				
+				//end
+				//end
+				//else
+				//expected_result[count++]=rxpacket;
+				//if(debug)
+				//foreach(rxpacket[i])
+				
+			end
+		endtask
+    
+	endclass
+
+	
+
+	class stimulus_gen ;
+
+		xtlm_fifo #(bit[(packet_width*ports*2)-1:0]) driverChannel;
+   
+		function new();			//Constructor 
+			begin
+				driverChannel = new ("top.input_pipe");		
+			
+				
+			end
+		endfunction
+      
+      task packgen;
+      input [2:0]port; input [1:0]slot; output packet packet;
+      begin
+         packet={1'b1,port,slot,1'b0,~(^{1'b1,port,slot,1'b0})};
+    //$display("Packet Is=%p",packet);
+      end
+      endtask
+
+		task run;
+		  full_packet [ports-1:0] tx_packet;
+		  
+		repeat(2)				
+			begin	
+			
+		for(int j=0;j<slots;j++)
+		begin
+			for(int i=0;i<ports;i++)
+			begin
+			    packgen(i,j,tx_packet[i].header);
+			    tx_packet[i].payload=i+j;
+			    			    
+			 end
+			 driverChannel.put(tx_packet);
+			 //foreach(tx_packet[i])
+			 //$display("\nHVL: Port %0d Sent Header=%p   Payload=%p",i,tx_packet[i].header,tx_packet[i].payload.payload);
+
+		end
+   end
+   repeat(15)
+   begin
+		 tx_packet=0;
+		 driverChannel.put(tx_packet);
+		 //foreach(tx_packet[i])
+		 //$display("\nHVL: Port %0d Sent Header=%p   Payload=%p",i,tx_packet[i].header,tx_packet[i].payload.payload);
+	 end
+		     
+    	driverChannel.flush_pipe;		
+                 
+		endtask
+
+	endclass
+
+
+	module xbar_hvl;
+
+		scoreboard scb;
+		stimulus_gen stim_gen;
+		
+		task run();
+		 	fork
+			begin
+				scb.run();
+			end
+			join_none
+        
+			fork			
+			begin
+				stim_gen.run();
+			end			
+			join_none
+		endtask
+
+		initial 
+		fork
+		 	    		
+			scb = new();
+			stim_gen = new();
+			run();
+			
+			
+		join_none
+
+	endmodule
+ 
+
+
+
