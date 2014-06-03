@@ -1,0 +1,31 @@
+//Stimulus Gen virtual base class
+//Provides template for child classes
+
+virtual class stimulus_gen ;
+
+		xtlm_fifo #(bit[(packet_width*ports*2)-1:0]) driverChannel;
+    full_packet [ports-1:0] tx_packet;
+		function new();			//Constructor 
+			begin
+				driverChannel = new ("top.input_pipe");		
+			
+				
+			end
+		endfunction
+		
+		task packgen;
+      input [2:0]port; input [1:0]slot; output packet packet;
+      begin
+        if(error == 1) begin
+         packet={1'b1,port,slot,1'b0,~(^{1'b1,port,slot,1'b0})};
+       end
+       else
+         packet={1'b1,port,slot,1'b0,~(^{1'b1,port,slot,1'b0})};
+    //$display("Packet Is=%p",packet);
+      end
+      endtask
+
+		pure virtual task run();
+		 
+
+	endclass

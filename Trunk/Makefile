@@ -25,7 +25,7 @@ puresim:
 	vlog $(VLOG)
 	vlog $(SVLOG)
 	tbxsvlink -puresim
-	vsim -novopt top xbar_hvl TbxSvManager
+	
 	
 veloce:
 	vlib tbx_work
@@ -36,3 +36,11 @@ veloce:
 	tbxsvlink -veloce
 
 
+launch: 
+	vsim -c -novopt -do "run -all" top xbar_hvl TbxSvManager +TESTCASE=no_contention +DEBUG=0 +ERROR=1
+	vsim -c -novopt -do "run -all" top xbar_hvl TbxSvManager +TESTCASE=half_contention +DEBUG=0 +ERROR=0
+	vsim -c -novopt -do "run -all" top xbar_hvl TbxSvManager +TESTCASE=no_valid_packets +DEBUG=0 +ERROR=0
+	vsim -c -novopt -do "run -all" top xbar_hvl TbxSvManager +TESTCASE=only_one_valid +DEBUG=0 +ERROR=0
+	vsim -c -novopt -do "run -all" top xbar_hvl TbxSvManager +TESTCASE=message +DEBUG=0 +ERROR=0
+	vsim -c -novopt -do "run -all" top xbar_hvl TbxSvManager +TESTCASE=random_packets +DEBUG=0 +ERROR=0
+	

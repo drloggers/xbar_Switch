@@ -17,6 +17,7 @@ module b8b10(
   disparity d(.data(encoded_out),
               .rst(rst),
               .clk(clk),
+              .enable(enable),
               .disparity(disparity_out));
 
 endmodule

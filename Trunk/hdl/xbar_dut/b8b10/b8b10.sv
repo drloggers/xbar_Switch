@@ -20,4 +20,5 @@ module b8b10(
               .enable(enable),
               .disparity(disparity_out));
 
+
 endmodule

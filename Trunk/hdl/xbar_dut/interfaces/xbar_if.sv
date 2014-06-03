@@ -1,3 +1,10 @@
+/*
+ECE 571 - Intro to SystemVerilog. Spring 2014
+Design & Verification of 8x8 Time-Space Crossbar Switch
+Sameer Ghewari, Sanket Borhade 
+*/
+
+// This is primary interface of the system for connection to the outer world
 
 import xbar_pkg::*;
 

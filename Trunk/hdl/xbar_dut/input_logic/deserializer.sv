@@ -12,6 +12,4 @@ module deserializer(input clk,rst,serial_in, output [packet_width+1:0]parallel_o
     data <= {data[packet_width-1:0],serial_in};
   end
 
-
-
 endmodule

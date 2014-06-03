@@ -23,4 +23,45 @@ begin
    $monitor("Data From %d  New Header %p",port.mux_sel,port.input_header.header);*/
     
 end  
+
+//Coverage
+
+covergroup sw_cov @(posedge port.clk);
+
+  valid:coverpoint port.input_header.header.valid
+  {
+      bins valid[] = {1'b1};
+  }
+  
+  invalid:coverpoint port.input_header.header.valid
+  {
+      bins invalid[] = {1'b1};
+  }
+  
+  all_ports:coverpoint port.input_header.header.port_address
+  {
+      bins ports[] = {[0:ports-1]};
+  }
+  
+  all_slots:coverpoint port.input_header.header.slot_id
+  {
+      bins slots[] = {[0:slots-1]};
+  }
+  
+valid_frames: cross valid, all_ports, all_slots
+  {
+   
+    bins port0valid_frames = binsof(all_ports) intersect {0} && binsof(valid) && binsof(all_slots);
+    }
+
+  
+  endgroup
+
+ 
+  
+  sw_cov sw_cov_h = new();
+ 
+  
+
+  
 endmodule

@@ -1,0 +1,65 @@
+// Switching Logic
+
+import xbar_pkg::*;
+
+module switching_logic(xbar_sys_if.switching_logic port);
+
+ 
+ 
+always_comb
+begin
+  port.sw2op_wad = port.input_header.header.slot_id;
+  port.sw2op_wcs = port.input_header.header.port_address;
+  
+  port.output_header.header=port.input_header.header;
+  port.output_header.header.slot_id = port.mux_sel[1:0];  //mux_sel[1:0] indicates slots
+  port.output_header.header.port_address = port.mux_sel[4:2]; //mux_sel[4:2] indicates port
+  port.output_header.header.header_parity = ~(^port.output_header[packet_width-1:slot_id_width-1]);
+  port.output_header.header.valid = port.output_header.header.valid & ~port.swdone;
+  port.output_payload = port.input_payload;
+   /*$monitor("Data From %d sw2op_wad=%b",port.mux_sel,port.sw2op_wad);
+   $monitor("Data From %d sw2op_wcs=%b",port.mux_sel,port.sw2op_wcs);
+   $monitor("Data From %d Running Slot=%d",port.mux_sel,port.running_slot);
+   $monitor("Data From %d  New Header %p",port.mux_sel,port.input_header.header);*/
+    
+end  
+
+//Coverage
+
+covergroup sw_cov @(posedge port.clk);
+
+  valid:coverpoint port.input_header.header.valid
+  {
+      bins valid[] = {1'b1};
+  }
+  
+  invalid:coverpoint port.input_header.header.valid
+  {
+      bins invalid[] = {1'b1};
+  }
+  
+  all_ports:coverpoint port.input_header.header.port_address
+  {
+      bins ports[] = {[0:ports-1]};
+  }
+  
+  all_slots:coverpoint port.input_header.header.slot_id
+  {
+      bins slots[] = {[0:slots-1]};
+  }
+  
+  
+  endgroup
+
+ valid_frames: cross valid, all_ports, all_slots
+  {
+   
+    bins port0valid_frames = binsof(all_ports) intersect {0} && binsof(valid) && binsof(all_slots);
+    }
+  
+  sw_cov sw_cov_h = new();
+ 
+  
+
+  
+endmodule

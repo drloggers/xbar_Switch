@@ -1,6 +1,6 @@
 import xbar_pkg::*;
 
-module deserializer(input clk,rst,serial_in, output logic[packet_width+1:0]parallel_out );
+module deserializer(input clk,rst,serial_in, output [packet_width+1:0]parallel_out );
  
  logic [packet_width:0] data;
   assign parallel_out = {data,serial_in};
@@ -13,5 +13,3 @@ module deserializer(input clk,rst,serial_in, output logic[packet_width+1:0]paral
   end
 
 
-
-endmodule
